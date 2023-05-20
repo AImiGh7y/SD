@@ -27,11 +27,11 @@
 @set JAVAPROJ="C:\\Users\\Nuno\\SD"
 @Set RABBITMQ_SERVICES_FOLDER=edu/ufp/inf/sd/rabbitmqservices
 @Set RABBITMQ_SERVICES_PACKAGE=edu.ufp.inf.sd.rabbitmqservices
-@Set PACKAGE=_04_topics
+@Set PACKAGE=_ProjetoSD
 @Set QUEUE_NAME_PREFIX=pubsub
-@Set EXCHANGE_NAME_PREFIX=topic_logs
-@Set PRODUCER_CLASS_PREFIX=EmitLogTopic
-@Set CONSUMER_CLASS_PREFIX=ReceiveLogsTopic
+@Set EXCHANGE_NAME_PREFIX=logs
+@Set PRODUCER_CLASS_PREFIX=EmitLog
+@Set CONSUMER_CLASS_PREFIX=ReceiveLogs
 @SET OBSERVER_CLASS_PREFIX=ObserverGuiClient
 
 @REM ==== NETWORK STUFF ====

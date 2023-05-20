@@ -1,0 +1,209 @@
+package edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine;
+
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+
+/**Put the game stuff in here so all I have to do is end/start this to make a game work or not.*/
+public class Battle {
+	/**A count of all the edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.players in the game, used before Game.player is populated so this is required.*/
+	public int totalplayers = 2;
+	/**The current player who is playing, this loops back to 0 when it goes too high.*/
+	public int currentplayer = 0;
+	public String mapname;
+	public boolean GameOver;
+	
+	//Game settings
+	boolean FogOfWar;
+	int startingmoney = 100;//How much you start with each round.
+	int buildingmoney = 50;//How much each building provides.
+	int day = 1;
+	
+	//Winning condition settings
+	public int playersleft = 1;
+
+	private SubjectRI subjectRI;
+	private int playerId;
+	private String gameId;
+
+	public SubjectRI getSubjectRI() {
+		return subjectRI;
+	}
+
+	public String getGameId() {
+		return gameId;
+	}
+
+	public int getPlayerId() {
+		return playerId;
+	}
+
+	public void NewGame(String mapname, String uid, ObserverImpl observer, SubjectRI subjectRI, int playerId) {
+		observer.setBattle(this);
+		this.gameId = uid;
+		this.subjectRI = subjectRI;
+		this.playerId = playerId;
+		System.out.println("battle new game for player: " + playerId);
+
+		edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.player = new ArrayList<edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.players.Base>();
+		edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.builds = new ArrayList<edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.buildings.Base>();
+		edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.units = new ArrayList<edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.units.Base>();
+		edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.view.Loc.x = 0;
+		edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.view.Loc.y = 0;
+		if (!edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.map.parse.decode(mapname)) {
+			edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.GameState = edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.State.MENU;
+			return;
+		}
+		this.mapname = mapname;
+		playersleft = totalplayers;
+		GameOver = false;
+		
+		/*
+		String a = "%9*OUU?B=D T9BO";
+        String b = "cVX*#0Mb\\dC;]'=}";
+        char[] c = new char[16];
+        for (int i = 0; i < 15; i++)
+        {
+            c[i] = a.charAt(i);
+            c[i] ^= b.charAt(i);
+        }
+        System.out.println(new String(c));
+        */
+	}
+
+	public void EndTurn() {
+		if(edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.btl.currentplayer != edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.btl.getPlayerId())
+			// aceitar apenas teclas se for a vez do jogador
+			return;
+		try {
+			subjectRI.setState(new State(gameId, "endturn"));
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+	public void EndTurn2() {
+		MenuHandler.CloseMenu();
+		edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.players.Base ply = edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.player.get(currentplayer);
+		for (edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.units.Base unit : edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.units) {
+			unit.acted=false;
+			unit.moved=false;
+		}
+		System.out.println("Battle end turn2. current player: " + currentplayer + " total players: " + totalplayers);
+		currentplayer++;
+		if (currentplayer>=totalplayers) {currentplayer=0;day++;}
+		ply = edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.player.get(currentplayer);
+		if (day!=1) {
+			ply.money+=buildingmoney*Buildingcount(currentplayer);
+		}
+		for (edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.units.Base unit : edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.units) {
+			if (unit.owner == currentplayer && unit.health<unit.maxhp && unit.bld!=-1) {
+				unit.Medic();
+			}
+		}
+		edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.pathing.LastChanged++;
+		System.out.println("END Battle end turn2. current player: " + currentplayer + " total players: " + totalplayers);
+	}
+
+	/**Grabs the number of edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.buildings a player owns.*/
+	private int Buildingcount(int owner) {
+		int total = 0;
+		for (edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.buildings.Base bld : edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.builds) {
+			if (bld.owner==owner) {total++;}
+		}
+		return total;
+	}
+	
+	public void Action() {
+		edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.players.Base ply = edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.player.get(currentplayer);
+		//if (ply.npc) {return;}
+		if (ply.unitselected) {
+			if (currentplayer== edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.units.get(ply.selectedunit).owner) {//Action
+				if (edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.units.get(ply.selectedunit).moved&&!edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.units.get(ply.selectedunit).acted) {
+					edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.units.get(ply.selectedunit).action(ply.selectx,ply.selecty);
+					ply.unitselected=false;
+				}
+				else if (!edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.units.get(ply.selectedunit).moved) {//Move
+					edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.units.get(ply.selectedunit).move(ply.selectx,ply.selecty);
+				}
+				else {ply.unitselected=false;}
+			}
+			else {ply.unitselected=false;}
+		}
+		else {
+			if (!ply.FindUnit()) {
+				ply.unitselected=false;
+				ply.FindCity();
+			}
+		}
+	}
+
+	public void Buyunit(int type, int x, int y) {
+		if(edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.btl.currentplayer != edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.btl.getPlayerId())
+			// aceitar apenas teclas se for a vez do jogador
+			return;
+		try {
+			subjectRI.setState(new State(gameId, "buy " + type + " " + x + " " + y));
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void Buyunit2(int type, int x, int y) {
+		MenuHandler.CloseMenu();
+		double cost = edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.displayU.get(type).cost* edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.player.get(currentplayer).CostBonus;
+		if (edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.player.get(currentplayer).money>=cost) {
+			edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.units.add(edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.list.CreateUnit(type, currentplayer, x, y, false));
+			edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.player.get(currentplayer).money-=cost;
+		}
+	}
+
+	public void MaxUsers(int max) {
+		//Setup for max edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.players
+		if (max<2) {totalplayers = 2;}
+		else if (max>12) {totalplayers = 12;}
+		else {totalplayers = max;}
+		//HACK: Change when I add more images to support more edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.players.
+		if (max>4) {totalplayers = 4;
+			edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.error.ShowError("The game currently supports only 4 players, not " + max + ".");
+		}
+	}
+
+	public void AddCommanders(int[] coms, boolean[] npc, int start, int city) {
+		startingmoney = start;
+		buildingmoney = city;
+		for (int i = 0;i<totalplayers;i++) {//TODO: Team setup needs to be added.
+			edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.player.add(edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.list.CreateCommander(coms[i],i+1,start,npc[i]));
+		}
+		for (edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.buildings.Base bld : edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.builds) {
+			if (bld.owner!=15) {
+				bld.team = edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.player.get(bld.owner).team;
+			}
+		}
+	}
+
+	public void CaptureCapital(int x, int y) {
+		int loser = 0;
+		for (int i = 0; i < edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.builds.size(); i++) {
+			if (edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.builds.get(i).x == x && edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.builds.get(i).y == y) {
+				edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.player.get(edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.builds.get(i).owner).defeated=true;//Makes a player lose.
+				loser = edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.builds.get(i).owner;
+				System.out.println("Grrr " + loser);
+				edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.builds.remove(i);
+				edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.builds.add(i, edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.list.CreateCity(currentplayer, x, y, 1));
+				playersleft--;
+				if (playersleft<=1) {
+					GameOver = true;
+					new edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.menus.EndBattle();
+				}
+				break;
+			}
+		}
+		for (int i = 0; i < edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.units.size(); i++) {
+			if (edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.units.get(i).owner == loser) {
+				System.out.println("Remove " + edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.units.get(i).owner);
+				Game.units.remove(i);
+			}
+		}
+		//TODO: Change all edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.buildings to be owned by the player.
+	}
+	
+}

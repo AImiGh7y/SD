@@ -1,8 +1,8 @@
-package edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.chatgui;
+package edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client;
 
 import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.*;
-import edu.ufp.inf.sd.rabbitmqservices._04_topics.chatgui.ObserverGuiClient;
+import edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game;
 import edu.ufp.inf.sd.rabbitmqservices.util.RabbitUtils;
 
 import java.io.IOException;
@@ -32,10 +32,6 @@ import java.util.logging.Logger;
  * @author rui
  */
 public class Observer {
-
-    //Reference for gui
-    private final ObserverGuiClient gui;
-
     //Preferences for exchange...
     private final Channel channelToRabbitMq;
     private final String exchangeName;
@@ -44,9 +40,9 @@ public class Observer {
     private final String messageFormat;
 
     //Settings for specifying topics
-    private final String room;
-    private final String user;
-    private final String general;
+    private final Game game;
+    private final String mapa;
+    private final int player;
 
     //Store received message to be get by gui
     private String receivedMessage;
@@ -54,8 +50,8 @@ public class Observer {
     /**
      * @param gui
      */
-    public Observer(ObserverGuiClient gui, String host, int port, String brokerUser, String brokerPass, String room, String user, String general, String exchangeName, BuiltinExchangeType exchangeType, String messageFormat) throws IOException, TimeoutException {
-        this.gui=gui;
+    public Observer(Game game, String host, int port, String brokerUser, String brokerPass, int player, String mapa, String exchangeName, BuiltinExchangeType exchangeType, String messageFormat) throws IOException, TimeoutException {
+        this.game = game;
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, " going to attach _05_observer to host: " + host + "...");
 
         Connection connection=RabbitUtils.newConnection2Server(host, port, brokerUser, brokerPass);
@@ -63,16 +59,9 @@ public class Observer {
         this.exchangeName=exchangeName;
         this.exchangeType=exchangeType;
 
-        this.room=room;
-        this.user=user;
-        this.general=general;
+        this.player=player;
+        this.mapa = mapa;
 
-        // TODO: Set 2 binding keys (to receive msg from public room.general and private room.user
-        String bingingKeys[]={room + "." + general, room + "." + user};
-
-
-
-        this.exchangeBindingKeys=bingingKeys;
         this.messageFormat=messageFormat;
 
         bindExchangeToChannelRabbitMQ();
@@ -107,7 +96,7 @@ public class Observer {
                 String message=new String(delivery.getBody(), "UTF-8");
                 setReceivedMessage(message);
                 System.out.println(" [x] Received '" + message + "'");
-                gui.updateTextArea();
+                game.updateGame(message);
             };
             CancelCallback cancelCalback=consumerTag -> {
                 System.out.println(" [x] CancelCallback invoked");
@@ -123,15 +112,19 @@ public class Observer {
 
     /**
      * Publish messages to existing exchange instead of the nameless one.
+     * - The routingKey is empty ("") since the fanout exchange ignores it.
      * - Messages will be lost if no queue is bound to the exchange yet.
-     * - User may be some 'username' or 'general' (for all)
+     * - Basic properties can be: MessageProperties.PERSISTENT_TEXT_PLAIN, etc.
      */
-    public void sendMessage(String msgToSend, String user) throws IOException {
-        BasicProperties prop=MessageProperties.PERSISTENT_TEXT_PLAIN;
-        //User maybe some <username> (private msg) or 'general' (public msg for all)
+    public void sendMessage(String msgToSend) throws IOException {
+        //RoutingKey will be ignored by FANOUT exchange
+        String routingKey="";
+        BasicProperties prop = MessageProperties.PERSISTENT_TEXT_PLAIN;
 
-        // TODO: Publish message with routing key
+        //System.out.println(msgToSend);
 
+        // TODO: Publish message
+        this.channelToRabbitMq.basicPublish(exchangeName, routingKey, null, msgToSend.getBytes("UTF-8"));
     }
 
     /**
