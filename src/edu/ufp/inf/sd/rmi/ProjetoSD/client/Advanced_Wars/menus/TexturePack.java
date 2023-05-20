@@ -61,7 +61,7 @@ public class TexturePack implements ActionListener {
 			MenuHandler.CloseMenu();
 		}
 		else if (s==Return) {
-			new Options(game);
+			new Options();
 		}
 	}
 }

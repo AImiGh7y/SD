@@ -147,7 +147,7 @@ public class StartMenu implements ActionListener {
 			MenuHandler.CloseMenu();
 		}
 		else if (s==Credits) {new Credits();}
-		else if (s==Options) {new Options(game);}
+		else if (s==Options) {new Options();}
 		else if (s==Exit) {System.exit(0);}
 	}
 }

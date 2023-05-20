@@ -28,7 +28,7 @@ public class Gui extends JPanel {
 
 	// For communication with the edu.ufp.inf.sd.rmi.ProjetoSD.server
 	private SetupContextRMI contextRMI;
-	private Game game;
+	public static Game game;
 
 	public Gui(Game game) {
 		this.game = game;

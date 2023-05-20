@@ -1,6 +1,8 @@
 package edu.ufp.inf.sd.rmi.ProjetoSD.client.Advanced_Wars.engine;
 
+import edu.ufp.inf.sd.rmi.ProjetoSD.client.Advanced_Wars.menus.MenuHandler;
 import edu.ufp.inf.sd.rmi.ProjetoSD.client.ObserverImpl;
+import edu.ufp.inf.sd.rmi.ProjetoSD.server.State;
 import edu.ufp.inf.sd.rmi.ProjetoSD.server.SubjectRI;
 
 import java.rmi.RemoteException;
@@ -26,9 +28,23 @@ public class Battle {
 
 	private SubjectRI subjectRI;
 	private int playerId;
+	private String gameId;
+
+	public SubjectRI getSubjectRI() {
+		return subjectRI;
+	}
+
+	public String getGameId() {
+		return gameId;
+	}
+
+	public int getPlayerId() {
+		return playerId;
+	}
 
 	public void NewGame(String mapname, String uid, ObserverImpl observer, SubjectRI subjectRI, int playerId) {
 		observer.setBattle(this);
+		this.gameId = uid;
 		this.subjectRI = subjectRI;
 		this.playerId = playerId;
 		System.out.println("battle new game for player: " + playerId);
@@ -60,17 +76,17 @@ public class Battle {
 	}
 
 	public void EndTurn() {
-		System.out.println("currentplayer: " + currentplayer + " my id: " + playerId);
-		if(currentplayer == playerId) {
-			try {
-				subjectRI.EndTurn();
-			} catch (RemoteException e) {
-				e.printStackTrace();
-			}
+		if(Game.btl.currentplayer != Game.btl.getPlayerId())
+			// aceitar apenas teclas se for a vez do jogador
+			return;
+		try {
+			subjectRI.setState(new State(gameId, "endturn"));
+		} catch (RemoteException e) {
+			e.printStackTrace();
 		}
 	}
-
 	public void EndTurn2() {
+		MenuHandler.CloseMenu();
 		edu.ufp.inf.sd.rmi.ProjetoSD.client.Advanced_Wars.players.Base ply = Game.player.get(currentplayer);
 		for (edu.ufp.inf.sd.rmi.ProjetoSD.client.Advanced_Wars.units.Base unit : Game.units) {
 			unit.acted=false;
@@ -91,7 +107,7 @@ public class Battle {
 		Game.pathing.LastChanged++;
 		System.out.println("END Battle end turn2. current player: " + currentplayer + " total players: " + totalplayers);
 	}
-	
+
 	/**Grabs the number of edu.ufp.inf.sd.rmi.ProjetoSD.client.Advanced_Wars.buildings a player owns.*/
 	private int Buildingcount(int owner) {
 		int total = 0;
@@ -99,16 +115,6 @@ public class Battle {
 			if (bld.owner==owner) {total++;}
 		}
 		return total;
-	}
-
-	public void Action2() {
-		if(currentplayer == playerId) {
-			try {
-				subjectRI.Action();
-			} catch (RemoteException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 	
 	public void Action() {
@@ -135,18 +141,19 @@ public class Battle {
 		}
 	}
 
-	/**This will be redone when I set up the unit buying menu.*/
 	public void Buyunit(int type, int x, int y) {
-		if(currentplayer == playerId) {
-			try {
-				subjectRI.Buyunit(type, x, y);
-			} catch (RemoteException e) {
-				e.printStackTrace();
-			}
+		if(Game.btl.currentplayer != Game.btl.getPlayerId())
+			// aceitar apenas teclas se for a vez do jogador
+			return;
+		try {
+			subjectRI.setState(new State(gameId, "buy " + type + " " + x + " " + y));
+		} catch (RemoteException e) {
+			e.printStackTrace();
 		}
 	}
 
 	public void Buyunit2(int type, int x, int y) {
+		MenuHandler.CloseMenu();
 		double cost = Game.displayU.get(type).cost*Game.player.get(currentplayer).CostBonus;
 		if (Game.player.get(currentplayer).money>=cost) {
 			Game.units.add(Game.list.CreateUnit(type, currentplayer, x, y, false));
@@ -174,16 +181,6 @@ public class Battle {
 		for (edu.ufp.inf.sd.rmi.ProjetoSD.client.Advanced_Wars.buildings.Base bld : Game.builds) {
 			if (bld.owner!=15) {
 				bld.team = Game.player.get(bld.owner).team;
-			}
-		}
-	}
-
-	public void CaptureCapital2(int x, int y) {
-		if(currentplayer == playerId) {
-			try {
-				subjectRI.CaptureCapital(x, y);
-			} catch (RemoteException e) {
-				e.printStackTrace();
 			}
 		}
 	}

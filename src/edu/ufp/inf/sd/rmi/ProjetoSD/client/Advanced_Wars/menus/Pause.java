@@ -20,10 +20,8 @@ public class Pause implements ActionListener {
 	JButton EndTurn = new JButton("EndTurn");
 	JButton Resume = new JButton("Resume");
 	JButton Quit = new JButton("Quit");
-	private Game game;
-	
-	public Pause(Game game) {
-		this.game = game;
+
+	public Pause() {
 		Point size = MenuHandler.PrepMenu(120,180);
 		SetBounds(size);
 		AddGui();
@@ -54,9 +52,9 @@ public class Pause implements ActionListener {
 	@Override public void actionPerformed(ActionEvent e) {
 		Object s = e.getSource();
 		if (s==Quit) {
-			if(game.getGameSessionRI() != null)
+			if(Game.gui.game.getGameSessionRI() != null)
 				try {
-					game.getGameSessionRI().quitGame(Game.uid);
+					Game.gui.game.getGameSessionRI().quitGame(Game.uid);
 				} catch (RemoteException ex) {
 					ex.printStackTrace();
 				}
@@ -69,6 +67,6 @@ public class Pause implements ActionListener {
 		}
 		else if (s==Resume) {MenuHandler.CloseMenu();}
 		else if (s==Save) {Game.save.SaveGame();}
-		else if (s==Options) {new Options(game);}
+		else if (s==Options) {new Options();}
 	}
 }

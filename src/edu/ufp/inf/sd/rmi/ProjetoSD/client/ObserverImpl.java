@@ -1,6 +1,7 @@
 package edu.ufp.inf.sd.rmi.ProjetoSD.client;
 
 import edu.ufp.inf.sd.rmi.ProjetoSD.client.Advanced_Wars.engine.Battle;
+import edu.ufp.inf.sd.rmi.ProjetoSD.client.Advanced_Wars.engine.Game;
 import edu.ufp.inf.sd.rmi.ProjetoSD.client.Advanced_Wars.menus.PlayerSelection;
 import edu.ufp.inf.sd.rmi.ProjetoSD.server.State;
 import edu.ufp.inf.sd.rmi.ProjetoSD.server.SubjectRI;
@@ -31,10 +32,12 @@ public class ObserverImpl extends UnicastRemoteObject implements ObserverRI {
         this.battle = battle;
     }
 
-    public void update(edu.ufp.inf.sd.rmi.ProjetoSD.server.Game g) throws RemoteException {
+    public void update() throws RemoteException {
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, "update");
         lastObserverState = subjectRI.getState();
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, "lastObserverState: {0}", lastObserverState);
+
+        Game.updateGame(lastObserverState.getInfo());
     }
 
     public State getLastObserverState() {
@@ -51,17 +54,5 @@ public class ObserverImpl extends UnicastRemoteObject implements ObserverRI {
 
     public void gameStarts() {
         menu.gameStarts();
-    }
-
-    public void Action() {battle.Action2();}
-
-    public void CaptureCapital(int x, int y) {battle.CaptureCapital2(x, y);}
-
-    public void Buyunit(int type, int x, int y) {
-        battle.Buyunit2(type, x, y);
-    }
-
-    public void EndTurn() {
-        battle.EndTurn2();
     }
 }

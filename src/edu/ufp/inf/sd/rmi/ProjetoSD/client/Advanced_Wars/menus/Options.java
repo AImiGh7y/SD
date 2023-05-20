@@ -34,10 +34,7 @@ public class Options implements ActionListener,ChangeListener {
 	JButton Close = new JButton("Return");
 	JButton Load = new JButton("Load Texture");
 
-	private Game game;
-
-	public Options(Game game) {
-		this.game = game;
+	public Options() {
 		Screen.setMajorTickSpacing(2);
 		Screen.setMinorTickSpacing(1);
 		Screen.setPaintTicks(true);
@@ -99,9 +96,9 @@ public class Options implements ActionListener,ChangeListener {
 		if (s == Close) {
 			Game.save.SaveSettings();
 			MenuHandler.CloseMenu();
-			if (Game.GameState == Game.State.MENU) {new StartMenu(game);}
+			if (Game.GameState == Game.State.MENU) {new StartMenu(Game.gui.game);}
 		}
-		else if (s == Load) {new TexturePack(game);}
+		else if (s == Load) {new TexturePack(Game.gui.game);}
 		else if (s == ChangeSize) {Game.gui.ResizeScreen(Screen.getValue());}
 	}
 	@Override public void stateChanged(ChangeEvent e) {

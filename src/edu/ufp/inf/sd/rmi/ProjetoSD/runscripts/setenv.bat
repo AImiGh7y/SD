@@ -24,7 +24,7 @@
 
 @REM ==== JAVA NAMING STUFF ====
 @Set JAVAPROJ_NAME=SD
-@set JAVAPROJ="C:\\Users\\Nuno\\SD"
+@set JAVAPROJ=C:\\Users\\Nuno\\SD
 @Set PACKAGE=ProjetoSD
 @Set PACKAGE_PREFIX=edu.ufp.inf.sd.rmi
 @Set PACKAGE_PREFIX_FOLDERS=edu/ufp/inf/sd/rmi

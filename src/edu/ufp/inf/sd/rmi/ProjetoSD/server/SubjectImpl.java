@@ -46,34 +46,18 @@ public class SubjectImpl extends UnicastRemoteObject implements SubjectRI {
         // state.id (quem enviou), state.msg (mensagem)
         Logger.getLogger(SubjectImpl.class.getName()).log(Level.INFO, "state: {0}", state);
         subjectState = state;
-/*        for(ObserverRI o: observers) {
+        notifyObservers();
+    }
+
+    private void notifyObservers() throws RemoteException {
+        for(ObserverRI o: observers) {
             //o.receive(state);
             o.update();
-        }*/
+        }
     }
 
     public void startGame() throws RemoteException {
         for(ObserverRI o: observers)
             o.gameStarts();
-    }
-
-    public void Buyunit(int type, int x, int y) throws RemoteException {
-        for(ObserverRI o: observers)
-            o.Buyunit(type, x, y);
-    }
-    public void EndTurn() throws RemoteException {
-        for(ObserverRI o: observers)
-            o.EndTurn();
-    }
-
-    public void CaptureCapital(int x, int y) throws RemoteException {
-        for(ObserverRI o: observers)
-            o.CaptureCapital(x, y);
-    }
-
-    public void Action() throws RemoteException {
-        for (ObserverRI o: observers) {
-            o.Action();
-        }
     }
 }

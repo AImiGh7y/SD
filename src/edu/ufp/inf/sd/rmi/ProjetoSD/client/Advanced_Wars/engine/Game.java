@@ -1,5 +1,6 @@
 package edu.ufp.inf.sd.rmi.ProjetoSD.client.Advanced_Wars.engine;
 
+import edu.ufp.inf.sd.rmi.ProjetoSD.client.Advanced_Wars.units.Base;
 import edu.ufp.inf.sd.rmi.ProjetoSD.client.ObserverImpl;
 import edu.ufp.inf.sd.rmi.ProjetoSD.server.GameSessionRI;
 import edu.ufp.inf.sd.rmi.ProjetoSD.server.SubjectRI;
@@ -144,6 +145,59 @@ public class Game extends JFrame {
 			
 			//Paints the scene then sleeps for a bit.
 			try { Thread.sleep(30);} catch (Exception e) {};
+		}
+	}
+
+	public static void updateGame(String play) {
+		edu.ufp.inf.sd.rmi.ProjetoSD.client.Advanced_Wars.players.Base ply = Game.player.get(Game.btl.currentplayer);
+		if(play.startsWith("buy")) {  // "buy type x y"
+			String[] args = play.split(" ");
+			btl.Buyunit2(Integer.valueOf(args[1]), Integer.valueOf(args[2]), Integer.valueOf(args[3]));
+		}
+		switch(play) {
+			case "up":
+				ply.selecty--;
+				if (ply.selecty<0) {
+					ply.selecty++;
+				}
+				break;
+
+			case "down":
+				ply.selecty++;
+				if (ply.selecty>=Game.map.height) {
+					ply.selecty--;
+				}
+				break;
+
+			case "left":
+				ply.selectx--;
+				if (ply.selectx<0) {
+					ply.selectx++;
+				}
+			break;
+
+			case "right":
+				ply.selectx++;
+				if (ply.selectx>=Game.map.width) {
+					ply.selectx--;
+				}
+				break;
+
+			case "select":
+				Game.btl.Action();
+				break;
+
+			case "cancel":
+				Game.player.get(Game.btl.currentplayer).Cancle();
+				break;
+
+			case "start":
+				new edu.ufp.inf.sd.rmi.ProjetoSD.client.Advanced_Wars.menus.Pause();
+				break;
+
+			case "endturn":
+				btl.EndTurn2();
+				break;
 		}
 	}
 	
