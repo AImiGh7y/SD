@@ -99,7 +99,7 @@ public class Options implements ActionListener,ChangeListener {
 		if (s == Close) {
 			Game.save.SaveSettings();
 			MenuHandler.CloseMenu();
-			if (Game.GameState == Game.State.MENU) {new StartMenu(Game.gui.game);}
+			//if (Game.GameState == Game.State.MENU) {new StartMenu(Game.gui.game);}
 		}
 		else if (s == Load) {new TexturePack(Game.gui.game);}
 		else if (s == ChangeSize) {Game.gui.ResizeScreen(Screen.getValue());}

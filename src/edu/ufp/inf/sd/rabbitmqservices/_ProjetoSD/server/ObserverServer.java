@@ -35,7 +35,7 @@ public class ObserverServer {
 
 
         //2. Create the _05_observer object that manages send/receive of messages to/from rabbitmq
-        this.server = new Server(this, host, port, "guest", "guest", exchangeName, BuiltinExchangeType.FANOUT, "UTF-8");
+        this.server = new Server(this, host, port, "guest", "guest", exchangeName, BuiltinExchangeType.FANOUT, "UTF-8", "");
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, " After initObserver()...");
 
 

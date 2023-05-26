@@ -36,7 +36,6 @@ public class ObserverImpl extends UnicastRemoteObject implements ObserverRI {
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, "update");
         lastObserverState = subjectRI.getState();
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, "lastObserverState: {0}", lastObserverState);
-
         Game.updateGame(lastObserverState.getInfo());
     }
 

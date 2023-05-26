@@ -79,9 +79,10 @@ public class Game extends JFrame {
 		return playerId;
 	}
 
-	public Game(int playerId) {
+	public Game(String mapa, int playerId) {
 		super(name);
-		this.game = game;
+		System.out.println("Game()");
+		this.game = this;
 		this.playerId = playerId;
 		//Default Settings of the JFrame
 	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -104,7 +105,16 @@ public class Game extends JFrame {
 		list = new ListData();
 		
 		setVisible(true);//This has been moved down here so that when everything is done, it is shown.
-		gui.LoginScreen();
+		//gui.LoginScreen();
+
+		String gameId = "";
+		int[] players = {0,0,0,0};
+		boolean[] empty = {false,false,false,false};
+		Game.btl.NewGame(mapa, gameId, observer, playerId);
+		Game.btl.AddCommanders(players, empty, 100, 50);
+		Game.gui.InGameScreen();
+
+		gui.InGameScreen();
 		save.LoadSettings();
 		//GameLoop();
 	}
@@ -161,7 +171,11 @@ public class Game extends JFrame {
 	}
 
 	public static void updateGame(String play) {
-		edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.players.Base ply = Game.player.get(Game.btl.currentplayer);
+		System.out.println("play: " + play);
+		String[] play_args = play.split(":");
+		int p = Integer.valueOf(play_args[0]);
+		play = play_args[1];
+		edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.players.Base ply = Game.player.get(p);
 		if(play.startsWith("buy")) {  // "buy type x y"
 			String[] args = play.split(" ");
 			btl.Buyunit2(Integer.valueOf(args[1]), Integer.valueOf(args[2]), Integer.valueOf(args[3]));
@@ -214,10 +228,10 @@ public class Game extends JFrame {
 	}
 	
 	/**Starts a new game when launched.*/
-	public static void main(String args[]) throws Exception {
+	/*public static void main(String args[]) throws Exception {
 		String currentWorkingDirectory = Paths.get(".").toAbsolutePath().normalize().toString();
 		System.out.println(currentWorkingDirectory);
 
 		new Game(0);
-	}
+	}*/
 }

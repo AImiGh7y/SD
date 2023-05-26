@@ -44,7 +44,7 @@ public class StartMenu implements ActionListener {
 
 	private Game game;
 
-	public StartMenu(Game game) {
+	public StartMenu(Game game, int playerId) {
 		this.game = game;
 		Point size = MenuHandler.PrepMenu(400,280);
 		MenuHandler.HideBackground();
@@ -101,7 +101,7 @@ public class StartMenu implements ActionListener {
 	}
 
 	private void refreshGamesList() {
-		GameSessionRI gameSessionRI = game.getGameSessionRI();
+		/*GameSessionRI gameSessionRI = game.getGameSessionRI();
 		if(gameSessionRI == null)
 			return;
 		DefaultListModel model = new DefaultListModel();
@@ -112,20 +112,20 @@ public class StartMenu implements ActionListener {
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
-		games_list.setModel(model);
+		games_list.setModel(model);*/
 	}
 
 
 	@Override public void actionPerformed(ActionEvent e) {
 		Object s = e.getSource();
 		if (s==New) {
-			String mapa = maps_list.getSelectedValue()+"";
+/*			String mapa = maps_list.getSelectedValue()+"";
 			System.out.println("INFO start menu: go to player selection with map " + mapa);
-			new PlayerSelection(mapa, game.getGameSessionRI(), null);
+			new PlayerSelection(mapa, game.getGameSessionRI(), null);*/
 		}
 		else if (s==Load) {Game.save.LoadGame();MenuHandler.CloseMenu();}
 		else if (s==Join) {
-			String mapa = maps_list.getSelectedValue()+"";
+/*			String mapa = maps_list.getSelectedValue()+"";
 			String uid = String.valueOf(games_list.getSelectedIndex());
 			Game.uid = uid;
 
@@ -138,7 +138,7 @@ public class StartMenu implements ActionListener {
 					new PlayerSelection(mapa, game.getGameSessionRI(), uid);
 			} catch (RemoteException ex) {
 				ex.printStackTrace();
-			}
+			}*/
 		}
 		else if(s == Refresh) {
 			refreshGamesList();

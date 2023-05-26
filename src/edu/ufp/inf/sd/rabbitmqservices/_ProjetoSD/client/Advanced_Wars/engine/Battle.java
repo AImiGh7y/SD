@@ -1,5 +1,9 @@
 package edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine;
 
+import edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.menus.MenuHandler;
+import edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Observer;
+
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 
@@ -21,13 +25,13 @@ public class Battle {
 	//Winning condition settings
 	public int playersleft = 1;
 
-	private SubjectRI subjectRI;
+	//private SubjectRI subjectRI;
 	private int playerId;
 	private String gameId;
 
-	public SubjectRI getSubjectRI() {
-		return subjectRI;
-	}
+	//public SubjectRI getSubjectRI() {
+	//	return subjectRI;
+	//}
 
 	public String getGameId() {
 		return gameId;
@@ -37,10 +41,9 @@ public class Battle {
 		return playerId;
 	}
 
-	public void NewGame(String mapname, String uid, ObserverImpl observer, SubjectRI subjectRI, int playerId) {
-		observer.setBattle(this);
+	public void NewGame(String mapname, String uid, Observer observer, int playerId) {
+		//observer.setBattle(this);
 		this.gameId = uid;
-		this.subjectRI = subjectRI;
 		this.playerId = playerId;
 		System.out.println("battle new game for player: " + playerId);
 
@@ -75,8 +78,9 @@ public class Battle {
 			// aceitar apenas teclas se for a vez do jogador
 			return;
 		try {
-			subjectRI.setState(new State(gameId, "endturn"));
-		} catch (RemoteException e) {
+			Game.game.getObserver().sendMessage(Game.game.getPlayerId() +":endturn");
+			//subjectRI.setState(new State(gameId, "endturn"));
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -141,8 +145,9 @@ public class Battle {
 			// aceitar apenas teclas se for a vez do jogador
 			return;
 		try {
-			subjectRI.setState(new State(gameId, "buy " + type + " " + x + " " + y));
-		} catch (RemoteException e) {
+			Game.game.getObserver().sendMessage(Game.game.getPlayerId() +":buy " + type + " " + x + " " + y);
+			//subjectRI.setState(new State(gameId, "buy " + type + " " + x + " " + y));
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}

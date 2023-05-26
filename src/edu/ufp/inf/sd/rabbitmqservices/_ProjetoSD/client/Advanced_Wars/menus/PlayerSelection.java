@@ -36,17 +36,15 @@ public class PlayerSelection implements ActionListener {
 	JButton ThunderbirdsAreGo = new JButton ("Start");
 	
 	String mapname;
-	GameSessionRI gameSessionRI;
 	String game_uid;
-	ObserverImpl observer;
-	edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.server.Game server_game;
+	Observer observer;
 	int player_id;
 	
-	public PlayerSelection(String map, GameSessionRI gameSessionRI, String game_uid) {
+	public PlayerSelection(String map, String game_uid) {
 		// creating an observer:
 		// - this observer will let us know when the game starts
 		// - once the game starts, the observer will communicate with battle
-
+		/*
 		try {
 			if(game_uid == null) {
 				// create new game
@@ -69,12 +67,11 @@ public class PlayerSelection implements ActionListener {
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
+		*/
 
 		mapname = map;
-		this.gameSessionRI = gameSessionRI;
-		this.game_uid = game_uid;
-		if(game_uid != null)
-			ThunderbirdsAreGo.setText("Join");
+		//if(game_uid != null)
+		//	ThunderbirdsAreGo.setText("Join");
 		Point size = edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.menus.MenuHandler.PrepMenu(400,200);
 		for (int i = 0; i < 4; i++) {
 			Prev[i].addActionListener(this);
@@ -117,12 +114,12 @@ public class PlayerSelection implements ActionListener {
 	@Override public void actionPerformed(ActionEvent e) {
 		Object s = e.getSource();
 		if (s == Return) {
-			edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.menus.MenuHandler.CloseMenu();
-			Game.gui.LoginScreen();
+			//edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.menus.MenuHandler.CloseMenu();
+			//Game.gui.LoginScreen();
 		}
 		else if(s == ThunderbirdsAreGo) {
 			// adicionado: adicionar o jogo e criar Subject e Observer
-			if(gameSessionRI != null)
+/*			if(gameSessionRI != null)
 				try {
 					// join
 					Game.uid = game_uid;
@@ -132,7 +129,7 @@ public class PlayerSelection implements ActionListener {
 				}
 				catch(RemoteException ex) {
 					System.out.println("Could not create server game: " + ex);
-				}
+				}*/
 
 			// a espera dos outros jogadores...
 			MenuHandler.CloseMenu();
@@ -158,8 +155,8 @@ public class PlayerSelection implements ActionListener {
 
 	public void gameStarts() {
 		System.out.println("INFO game starts!");
-		Game.btl.NewGame(server_game.getMapa(), server_game.getId(), observer, server_game.getSubjectRI(), player_id);
+/*		Game.btl.NewGame(server_game.getMapa(), server_game.getId(), observer, server_game.getSubjectRI(), player_id);
 		Game.btl.AddCommanders(server_game.getPlayers(), server_game.getEmpty(), 100, 50);
-		Game.gui.InGameScreen();
+		Game.gui.InGameScreen();*/
 	}
 }

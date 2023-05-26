@@ -67,18 +67,24 @@ public class InputHandler implements KeyListener,MouseListener,ActionListener {
 			//SubjectRI subject = edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.btl.getSubjectRI();
 			try {
 				if (i == up) {
-					Game.game.getObserver().sendMessage(Game.game.getPlayerId() +":down");
+					Game.game.getObserver().sendMessage(Game.game.getPlayerId() +":up");
 				} else if (i == down) {
+					Game.game.getObserver().sendMessage(Game.game.getPlayerId() +":down");
 					//subject.setState(new State(edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.btl.getGameId(), "down"));
 				} else if (i == left) {
+					Game.game.getObserver().sendMessage(Game.game.getPlayerId() +":left");
 					//subject.setState(new State(edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.btl.getGameId(), "left"));
 				} else if (i == right) {
+					Game.game.getObserver().sendMessage(Game.game.getPlayerId() +":right");
 					//subject.setState(new State(edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.btl.getGameId(), "right"));
 				} else if (i == select) {
+					Game.game.getObserver().sendMessage(Game.game.getPlayerId() +":select");
 					//subject.setState(new State(edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.btl.getGameId(), "select"));
 				} else if (i == cancel) {
+					Game.game.getObserver().sendMessage(Game.game.getPlayerId() +":cancel");
 					//subject.setState(new State(edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.btl.getGameId(), "cancel"));
 				} else if (i == start) {
+					Game.game.getObserver().sendMessage(Game.game.getPlayerId() +":start");
 					//subject.setState(new State(edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.btl.getGameId(), "start"));
 				}
 			} catch(IOException ex) {System.out.println(ex);}
@@ -105,11 +111,11 @@ public class InputHandler implements KeyListener,MouseListener,ActionListener {
 			}
 		}
 		
-		if (i==dev1) {
+		/*if (i==dev1) {
             edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.gui.LoginScreen();}
 		else if (i==dev2) {
             edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.load.LoadTexturePack("Test");}
-		else if (i==dev3) {
+		else */if (i==dev3) {
 			DevPathing++;
 			switch (DevPathing) {
 				case 1:
@@ -125,7 +131,7 @@ public class InputHandler implements KeyListener,MouseListener,ActionListener {
             edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.btl.EndTurn();}
 		else if (i==dev5) {
             edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.player.get(edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.btl.currentplayer).npc = !edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.player.get(edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.btl.currentplayer).npc; edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.btl.EndTurn();}
-		else if (i==dev6) {new edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.menus.StartMenu(game);}
+		//else if (i==dev6) {new edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.menus.StartMenu(game);}
 	}
 	public void keyReleased(KeyEvent e) {
 		int i=e.getKeyCode();

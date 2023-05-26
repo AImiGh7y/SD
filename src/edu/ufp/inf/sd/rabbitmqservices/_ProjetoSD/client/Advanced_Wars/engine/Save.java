@@ -135,7 +135,7 @@ public class Save {
 			//Opens the property file and starts a battle with the map in the save folder. 
 			Properties configFile = new Properties();
 			configFile.load(new FileInputStream(System.getProperty("user.dir") + "/" + path + "savegame.properties"));
-			edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.btl.NewGame(configFile.getProperty("Map"), null, null, null, 0);
+			edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.btl.NewGame(configFile.getProperty("Map"), null, null, 0);
 			edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.btl.currentplayer = Integer.parseInt(configFile.getProperty("CurrentPlayer"));
 			edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.engine.Game.btl.day = Integer.parseInt(configFile.getProperty("Days"));
 

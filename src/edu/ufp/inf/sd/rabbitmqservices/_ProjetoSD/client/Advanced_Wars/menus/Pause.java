@@ -54,14 +54,14 @@ public class Pause implements ActionListener {
 	@Override public void actionPerformed(ActionEvent e) {
 		Object s = e.getSource();
 		if (s==Quit) {
-			if(Game.gui.game.getGameSessionRI() != null)
+/*			if(Game.gui.game.getGameSessionRI() != null)
 				try {
 					Game.gui.game.getGameSessionRI().quitGame(Game.uid);
 				} catch (RemoteException ex) {
 					ex.printStackTrace();
-				}
-			MenuHandler.CloseMenu();
-			Game.gui.LoginScreen();
+				}*/
+			//MenuHandler.CloseMenu();
+			//Game.gui.LoginScreen();
 		}
 		else if (s==EndTurn) {
 			MenuHandler.CloseMenu();

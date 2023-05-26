@@ -74,7 +74,7 @@ public class EditorStart implements ActionListener {
 			MenuHandler.CloseMenu();
 		}
 		if (s==Return) {
-			Game.gui.LoginScreen();
+			//Game.gui.LoginScreen();
 		}
 	}
 }

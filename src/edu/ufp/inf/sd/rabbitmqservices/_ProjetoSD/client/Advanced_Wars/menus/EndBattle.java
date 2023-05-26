@@ -62,8 +62,8 @@ public class EndBattle implements ActionListener {
 	@Override public void actionPerformed(ActionEvent e) {
 		Object s = e.getSource();
 		if (s==Return) {
-			MenuHandler.CloseMenu();
-			Game.gui.LoginScreen();
+			//MenuHandler.CloseMenu();
+			//Game.gui.LoginScreen();
 		}
 	}
 }

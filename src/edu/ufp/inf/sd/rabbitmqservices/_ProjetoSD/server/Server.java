@@ -20,12 +20,12 @@ public class Server {
     private Channel channelToRabbitMq;
     private String exchangeName;
     private BuiltinExchangeType exchangeType;
-    //private final String[] exchangeBindingKeys;
+    private final String exchangeBindingKeys;
     private String messageFormat;
     //Store received message to be get by gui
     private String receivedMessage;
 
-    public Server(ObserverServer gui, String host, int port, String user, String pass, String exchangeName, BuiltinExchangeType exchangeType, String messageFormat) throws IOException, TimeoutException {
+    public Server(ObserverServer gui, String host, int port, String user, String pass, String exchangeName, BuiltinExchangeType exchangeType, String messageFormat, String bindingKeys) throws IOException, TimeoutException {
         this.gui = gui;
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, " going to attach observer to host: " + host + "...");
 
@@ -35,7 +35,7 @@ public class Server {
         this.exchangeName = exchangeName;
         this.exchangeType = exchangeType;
         //String[] bindingKeys={"",""};
-        //this.exchangeBindingKeys=bindingKeys;
+        this.exchangeBindingKeys=bindingKeys;
         this.messageFormat = messageFormat;
 
         bindExchangeToChannelRabbitMQ();
@@ -61,7 +61,6 @@ public class Server {
             /* TODO: Create a non-durable, exclusive, autodelete queue with a generated name.
                 The string queueName will contain a random queue name (e.g. amq.gen-JzTY20BRgKO-HjmUJj0wLg) */
             String queueName = channelToRabbitMq.queueDeclare().getQueue();
-
 
             /* TODO: Create binding: tell exchange to send messages to a queue; fanout exchange ignores the last parameter (binding key) */
 

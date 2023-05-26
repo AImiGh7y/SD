@@ -37,10 +37,10 @@ public class Gui extends JPanel {
 	}
 
 	/**Creates the Login screen layout*/
-	public void LoginScreen() {
+	public void LoginScreen(int playerId) {
 		Game.GameState=Game.State.MENU;
 		removeAll();
-		new edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.menus.StartMenu(game);
+		new edu.ufp.inf.sd.rabbitmqservices._ProjetoSD.client.Advanced_Wars.menus.StartMenu(game, playerId);
 		if (Game.error.showing) {add(Game.error);}
 	}
 	/**Creates the InGame screen layout*/

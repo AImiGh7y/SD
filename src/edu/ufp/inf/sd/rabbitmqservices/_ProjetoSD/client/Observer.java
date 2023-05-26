@@ -36,7 +36,7 @@ public class Observer {
     private final Channel channelToRabbitMq;
     private final String exchangeName;
     private final BuiltinExchangeType exchangeType;
-    private final String[] exchangeBindingKeys;
+    //private final String exchangeBindingKeys;
     private final String messageFormat;
 
     //Settings for specifying topics
@@ -47,9 +47,6 @@ public class Observer {
     //Store received message to be get by gui
     private String receivedMessage;
 
-    /**
-     * @param gui
-     */
     public Observer(Game game, String host, int port, String brokerUser, String brokerPass, int player, String mapa, String exchangeName, BuiltinExchangeType exchangeType, String messageFormat) throws IOException, TimeoutException {
         this.game = game;
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, " going to attach _05_observer to host: " + host + "...");
@@ -58,6 +55,7 @@ public class Observer {
         this.channelToRabbitMq=RabbitUtils.createChannel2Server(connection);
         this.exchangeName=exchangeName;
         this.exchangeType=exchangeType;
+        //this.exchangeBindingKeys = exchangeBindingKeys;
 
         this.player=player;
         this.mapa = mapa;
@@ -75,7 +73,7 @@ public class Observer {
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Declaring Exchange '" + this.exchangeName + "' with policy = " + this.exchangeType);
 
         // TODO: Declare exchange type
-
+        this.channelToRabbitMq.exchangeDeclare(exchangeName, BuiltinExchangeType.FANOUT);
     }
 
     /**
@@ -84,9 +82,13 @@ public class Observer {
     private void attachConsumerToChannelExchangeWithKey() {
         try {
             // TODO: Create a non-durable, exclusive, autodelete queue with a generated name.
-
+            String queueName = this.channelToRabbitMq.queueDeclare().getQueue();
 
             // TODO: Bind to each routing key (received from args[3] upward)
+            String routingKey = "";
+            this.channelToRabbitMq.queueBind(queueName, exchangeName, routingKey);
+
+            Logger.getLogger(this.getClass().getName()).log(Level.INFO, " Created consumerChannel bound to Exchange " + this.exchangeName + "...");
 
 
             /* Use a DeliverCallback lambda function instead of DefaultConsumer to receive messages from queue;
@@ -98,12 +100,12 @@ public class Observer {
                 System.out.println(" [x] Received '" + message + "'");
                 game.updateGame(message);
             };
-            CancelCallback cancelCalback=consumerTag -> {
-                System.out.println(" [x] CancelCallback invoked");
+            CancelCallback cancelCallback=consumerTag -> {
+                System.out.println(" [x] Consumer Tag [" + consumerTag + "] - Cancel Callback invoked!");
             };
 
             // TODO: Consume with deliver and cancel callbacks
-
+            this.channelToRabbitMq.basicConsume(queueName, true, deliverCallback, cancelCallback);
 
         } catch (Exception e) {
             Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, e.toString());

@@ -28,11 +28,11 @@
 @Set RABBITMQ_SERVICES_FOLDER=edu/ufp/inf/sd/rabbitmqservices
 @Set RABBITMQ_SERVICES_PACKAGE=edu.ufp.inf.sd.rabbitmqservices
 @Set PACKAGE=_ProjetoSD
-@Set QUEUE_NAME_PREFIX=pubsub
-@Set EXCHANGE_NAME_PREFIX=logs
+@Set QUEUE_NAME_PREFIX=projetosd
+@Set EXCHANGE_NAME_PREFIX=advancedWars
 @Set PRODUCER_CLASS_PREFIX=EmitLog
-@Set CONSUMER_CLASS_PREFIX=ReceiveLogs
-@SET OBSERVER_CLASS_PREFIX=ObserverGuiClient
+@Set SERVER_CLASS_PREFIX=ObserverServer
+@SET OBSERVER_CLASS_PREFIX=ObserverClient
 
 @REM ==== NETWORK STUFF ====
 @Set BROKER_HOST=localhost
