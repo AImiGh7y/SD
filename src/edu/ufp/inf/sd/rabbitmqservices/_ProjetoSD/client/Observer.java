@@ -46,15 +46,17 @@ public class Observer {
 
     //Store received message to be get by gui
     private String receivedMessage;
+    private String gameId;
 
-    public Observer(Game game, String host, int port, String brokerUser, String brokerPass, int player, String mapa, String exchangeName, BuiltinExchangeType exchangeType, String messageFormat) throws IOException, TimeoutException {
+    public Observer(Game game, String host, int port, String brokerUser, String brokerPass, int player, String mapa, String exchangeName, BuiltinExchangeType exchangeType, String messageFormat, String joinOrCreate, String gameId) throws IOException, TimeoutException {
         this.game = game;
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, " going to attach _05_observer to host: " + host + "...");
+        Logger.getLogger(this.getClass().getName()).log(Level.INFO, " going to attach observer to host: " + host + "...");
 
         Connection connection=RabbitUtils.newConnection2Server(host, port, brokerUser, brokerPass);
         this.channelToRabbitMq=RabbitUtils.createChannel2Server(connection);
         this.exchangeName=exchangeName;
         this.exchangeType=exchangeType;
+        this.gameId = gameId;
         //this.exchangeBindingKeys = exchangeBindingKeys;
 
         this.player=player;
@@ -64,6 +66,15 @@ public class Observer {
 
         bindExchangeToChannelRabbitMQ();
         attachConsumerToChannelExchangeWithKey();
+
+        // ask server to create a new game
+        int nplayers = 4;
+        if(mapa.equals("SmallVs"))
+            nplayers = 2;
+        String routingKey = "server." + joinOrCreate;
+        System.out.println("telling server to create new game " + gameId);
+        String message = gameId + ":" + nplayers;
+        this.channelToRabbitMq.basicPublish(exchangeName, routingKey, null, message.getBytes("UTF-8"));
     }
 
     /**
@@ -73,7 +84,7 @@ public class Observer {
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Declaring Exchange '" + this.exchangeName + "' with policy = " + this.exchangeType);
 
         // TODO: Declare exchange type
-        this.channelToRabbitMq.exchangeDeclare(exchangeName, BuiltinExchangeType.FANOUT);
+        this.channelToRabbitMq.exchangeDeclare(exchangeName, exchangeType);
     }
 
     /**
@@ -85,7 +96,8 @@ public class Observer {
             String queueName = this.channelToRabbitMq.queueDeclare().getQueue();
 
             // TODO: Bind to each routing key (received from args[3] upward)
-            String routingKey = "";
+            String routingKey = "client." + gameId;
+            System.out.println("queue bind: " + queueName  + " exchange: " + exchangeName);
             this.channelToRabbitMq.queueBind(queueName, exchangeName, routingKey);
 
             Logger.getLogger(this.getClass().getName()).log(Level.INFO, " Created consumerChannel bound to Exchange " + this.exchangeName + "...");
@@ -96,6 +108,8 @@ public class Observer {
                 void handle(String tag, Delivery delivery) throws IOException; */
             DeliverCallback deliverCallback=(consumerTag, delivery) -> {
                 String message=new String(delivery.getBody(), "UTF-8");
+                System.out.println("received message " + message + " from routing key " + delivery.getEnvelope().getRoutingKey());
+
                 setReceivedMessage(message);
                 System.out.println(" [x] Received '" + message + "'");
                 game.updateGame(message);
@@ -120,12 +134,13 @@ public class Observer {
      */
     public void sendMessage(String msgToSend) throws IOException {
         //RoutingKey will be ignored by FANOUT exchange
-        String routingKey="";
-        BasicProperties prop = MessageProperties.PERSISTENT_TEXT_PLAIN;
+        String routingKey = "server." + gameId;
 
         //System.out.println(msgToSend);
 
         // TODO: Publish message
+        //BasicProperties prop = MessageProperties.PERSISTENT_TEXT_PLAIN;
+        System.out.println("sending message (" + msgToSend + ") to routing key " + routingKey);
         this.channelToRabbitMq.basicPublish(exchangeName, routingKey, null, msgToSend.getBytes("UTF-8"));
     }
 
@@ -140,6 +155,7 @@ public class Observer {
      * @param receivedMessage the receivedMessage to set
      */
     public void setReceivedMessage(String receivedMessage) {
+        System.out.println("received message: " + receivedMessage);
         this.receivedMessage=receivedMessage;
     }
 }

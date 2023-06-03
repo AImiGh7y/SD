@@ -7,6 +7,7 @@ import edu.ufp.inf.sd.rabbitmqservices.util.RabbitUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
@@ -25,10 +26,14 @@ public class Server {
     //Store received message to be get by gui
     private String receivedMessage;
 
+    private HashMap<String, Integer> waitingPlayers = new HashMap<>();
+
+
     public Server(ObserverServer gui, String host, int port, String user, String pass, String exchangeName, BuiltinExchangeType exchangeType, String messageFormat, String bindingKeys) throws IOException, TimeoutException {
         this.gui = gui;
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, " going to attach observer to host: " + host + "...");
+        Logger.getLogger(this.getClass().getName()).log(Level.INFO, " going to attach server to host: " + host + "...");
 
+        System.out.println(" going to attach server to host: " + host + "... in port " + port + " user: " + user + " pass: " + pass);
         Connection connection = RabbitUtils.newConnection2Server(host, port, user, pass);
         this.channelToRabbitMq = RabbitUtils.createChannel2Server(connection);
 
@@ -40,7 +45,6 @@ public class Server {
 
         bindExchangeToChannelRabbitMQ();
         attachConsumerToChannelExchangeWithKey();
-
     }
 
     /**
@@ -50,7 +54,8 @@ public class Server {
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Declaring Exchange '" + this.exchangeName + "' with type " + this.exchangeType);
 
         /* TODO: Declare exchange type  */
-        channelToRabbitMq.exchangeDeclare(exchangeName + "server", BuiltinExchangeType.FANOUT);
+        //channelToRabbitMq.exchangeDeclare(exchangeName + "server", this.exchangeType);
+        channelToRabbitMq.exchangeDeclare(exchangeName, this.exchangeType);
     }
 
     /**
@@ -64,9 +69,17 @@ public class Server {
 
             /* TODO: Create binding: tell exchange to send messages to a queue; fanout exchange ignores the last parameter (binding key) */
 
-            String routingKey = "";
-            channelToRabbitMq.queueBind(queueName, exchangeName + "Server", routingKey);
-            channelToRabbitMq.queuePurge(queueName);
+            //channelToRabbitMq.queueBind(queueName, exchangeName + "Server", "server.*");
+            System.out.println("queue bind: " + queueName  + " exchange: " + exchangeName);
+            channelToRabbitMq.confirmSelect();  // chatgpt
+            channelToRabbitMq.queueBind(queueName, exchangeName, "server.*");
+            //channelToRabbitMq.queuePurge(queueName);
+            if (channelToRabbitMq.waitForConfirms()) {  // chatgpt
+                System.out.println("Binding operation successful.");
+            } else {
+                System.out.println("Binding operation failed.");
+            }
+
 
             Logger.getLogger(this.getClass().getName()).log(Level.INFO, " Created consumerChannel bound to Exchange " + this.exchangeName + "...");
 
@@ -75,9 +88,28 @@ public class Server {
                 void handle(String tag, Delivery delivery) throws IOException; */
             DeliverCallback deliverCallback = (consumerTag, delivery) -> {
                 String message = new String(delivery.getBody(), messageFormat);
+                String routingKey = delivery.getEnvelope().getRoutingKey();
+                System.out.println("received message " + message + " from routing key " + routingKey);
 
                 //Store the received message
-                setReceivedMessage(message);
+                if(routingKey.equals("server.create")) {
+                    // create topic with gameId (message)
+                    System.out.println("received message " + message + " from routing key server.create");
+                    String newGame[] = message.split(":");
+                    waitingPlayers.put(newGame[0], Integer.valueOf(newGame[1])-1);
+                    //attachConsumerToChannelExchangeWithKey("server." + message);
+                }
+                else if(routingKey.equals("server.join")) {
+                    // create topic with gameId (message)
+                    System.out.println("received message " + message + " from routing key server.create");
+                    String newGame[] = message.split(":");
+                    waitingPlayers.put(newGame[0], waitingPlayers.get(newGame[0])-1);
+                    //attachConsumerToChannelExchangeWithKey("server." + message);
+                }
+                else {
+                    String gameId = routingKey.split("\\.")[1];
+                    setReceivedMessage(message, gameId);
+                }
                 System.out.println(" [x] Consumer Tag [" + consumerTag + "] - Received '" + message + "'");
 
                 // TODO: Notify the GUI about the new message arrive
@@ -102,13 +134,13 @@ public class Server {
      * - Messages will be lost if no queue is bound to the exchange yet.
      * - Basic properties can be: MessageProperties.PERSISTENT_TEXT_PLAIN, etc.
      */
-    public void sendMessage(String msgToSend) throws IOException {
+    public void sendMessage(String msgToSend, String routingKey) throws IOException {
         //RoutingKey will be ignored by FANOUT exchange
-        String routingKey = "";
-        BasicProperties prop = MessageProperties.PERSISTENT_TEXT_PLAIN;
+        System.out.println("sending message: " + msgToSend + " using routing key: " + routingKey);
 
         // TODO: Publish message
-        channelToRabbitMq.basicPublish(exchangeName + "client", routingKey, prop, msgToSend.getBytes("UTF-8"));
+        BasicProperties prop = MessageProperties.PERSISTENT_TEXT_PLAIN;
+        channelToRabbitMq.basicPublish(exchangeName, routingKey, prop, msgToSend.getBytes("UTF-8"));
     }
 
     /**
@@ -121,13 +153,21 @@ public class Server {
     /**
      * @param receivedMessage the received message to set
      */
-    public void setReceivedMessage(String receivedMessage) throws IOException {
-        String[] string = receivedMessage.split(":");
-
-        if (string[1].equals("Down Pressed") || string[1].equals("Up Pressed") || string[1].equals("Right Pressed") || string[1].equals("Left Pressed")) {
-            this.sendMessage(receivedMessage);
+    public void setReceivedMessage(String receivedMessage, String gameId) throws IOException {
+        if(waitingPlayers.get(gameId) > 0) {
+            // do not send messages until all players join in
+            System.out.println("still waiting for " + waitingPlayers.get(gameId));
+            return;
         }
+
+        String[] string = receivedMessage.split(":");
+        System.out.println("Received message (" + receivedMessage + ") from game " + gameId);
         this.receivedMessage = receivedMessage;
+
+//        if (string[1].equals("Down Pressed") || string[1].equals("Up Pressed") || string[1].equals("Right Pressed") || string[1].equals("Left Pressed")) {
+            String routingKey = "client." + gameId;
+            this.sendMessage(receivedMessage, routingKey);
+//        }
 
     }
 }

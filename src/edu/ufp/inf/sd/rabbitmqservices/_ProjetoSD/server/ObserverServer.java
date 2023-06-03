@@ -35,7 +35,7 @@ public class ObserverServer {
 
 
         //2. Create the _05_observer object that manages send/receive of messages to/from rabbitmq
-        this.server = new Server(this, host, port, "guest", "guest", exchangeName, BuiltinExchangeType.FANOUT, "UTF-8", "");
+        this.server = new Server(this, host, port, "guest", "guest", exchangeName, BuiltinExchangeType.TOPIC, "UTF-8", "");
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, " After initObserver()...");
 
 
@@ -48,14 +48,14 @@ public class ObserverServer {
      *
      * @param msgToSend
      */
-    private void sendMsg(String user, String msgToSend) {
+/*    private void sendMsg(String user, String msgToSend) {
         try {
             msgToSend = "[" + user + "]: " + msgToSend;
             this.server.sendMessage(msgToSend);
         } catch (IOException ex) {
             Logger.getLogger(ObserverServer.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
+    }*/
     //================================================ END TO CHANGE ================================================
 
 

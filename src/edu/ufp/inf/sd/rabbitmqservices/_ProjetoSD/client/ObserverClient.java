@@ -47,7 +47,10 @@ public class ObserverClient {
         String exchangeName=args[2];
         int player = Integer.valueOf(args[3]);
         String mapa = args[4];
-        int gameId = Integer.valueOf(args[5]);
+        String joinOrCreate = args[5];
+        String gameId = args[6];
+        if(!joinOrCreate.equals("join") && !joinOrCreate.equals("create"))
+            System.out.println("Error: argument five must be join or create");
 
         //2. Create the _05_observer object that manages send/receive of messages to/from rabbitmq
         //this.observer=new Observer(this, host, port, "guest", "guest", room, user, this.generalTopic, exchangeName, BuiltinExchangeType.TOPIC, "UTF-8");
@@ -58,7 +61,7 @@ public class ObserverClient {
                 f = new Game(mapa, player);
                 //2. Create the _05_observer object that manages send/receive of messages to/from rabbitmq
                 try {
-                    observer = new Observer(f, host, port, "guest", "guest", player, mapa, exchangeName, BuiltinExchangeType.FANOUT, "UTF-8");
+                    observer = new Observer(f, host, port, "guest", "guest", player, mapa, exchangeName, BuiltinExchangeType.TOPIC, "UTF-8", joinOrCreate, gameId);
                 } catch (IOException | TimeoutException e) {
                     e.printStackTrace();
                 }
